@@ -7,6 +7,7 @@ export interface Account {
   category: string;
   type: 'income' | 'expense';
   creditCard: string | null;
+  inCreditCardStatement: boolean;
   createdAt: string;
 }
 

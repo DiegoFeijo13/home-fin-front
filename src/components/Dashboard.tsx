@@ -47,7 +47,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ accounts }) => {
     trend?: 'up' | 'down' | 'neutral';
     className?: string;
   }> = ({ title, value, icon, trend = 'neutral', className = '' }) => (
-    <div className={`bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200 ${className}`}>
+    <div className={`bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200 will-change-transform ${className}`}>
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>

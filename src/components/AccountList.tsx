@@ -61,7 +61,7 @@ export const AccountList: React.FC<AccountListProps> = ({ accounts, onEdit, onDe
       {accounts.map((account) => (
         <div
           key={account.id}
-          className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200"
+          className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200 will-change-transform"
         >
           <div className="flex items-center justify-between">
             <div className="flex-1">

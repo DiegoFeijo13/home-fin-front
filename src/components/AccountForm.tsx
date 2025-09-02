@@ -17,6 +17,7 @@ export const AccountForm: React.FC<AccountFormProps> = ({ account, onSave, onCan
     category: account?.category || '',
     type: account?.type || 'expense' as const,
     creditCard: account?.creditCard || '',
+    inCreditCardStatement: account?.inCreditCardStatement || false,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -37,7 +38,7 @@ export const AccountForm: React.FC<AccountFormProps> = ({ account, onSave, onCan
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" style={{ backdropFilter: 'blur(4px)' }}>
       <div className="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">

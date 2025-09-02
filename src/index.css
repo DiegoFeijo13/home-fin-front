@@ -1,3 +1,46 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Garantir compatibilidade cross-browser */
+* {
+  box-sizing: border-box;
+}
+
+/* Melhorar renderização de fontes no Firefox */
+body {
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Garantir que inputs tenham aparência consistente */
+input, select, textarea {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Melhorar suporte a flexbox no Firefox */
+.flex {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+/* Garantir que transformações funcionem corretamente */
+.transform {
+  -webkit-transform: var(--tw-transform);
+  -moz-transform: var(--tw-transform);
+  -ms-transform: var(--tw-transform);
+  transform: var(--tw-transform);
+}
+
+/* Melhorar suporte a transições */
+.transition-all {
+  -webkit-transition: all 0.2s ease-in-out;
+  -moz-transition: all 0.2s ease-in-out;
+  -o-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+}
