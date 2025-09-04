@@ -9,16 +9,77 @@ interface AccountFormProps {
 }
 
 export const AccountForm: React.FC<AccountFormProps> = ({ account, onSave, onCancel }) => {
+  
+  // Converter data UTC para formato de input date (YYYY-MM-DD)
+  const formatDateForInput = (utcDate: string): string => {
+    if (!utcDate) return '';
+    const date = new Date(utcDate);
+    return date.toISOString().split('T')[0];
+  };
+
+  // Converter data do input para UTC
+  const formatDateToUTC = (inputDate: string): string => {
+    if (!inputDate) return '';
+    const date = new Date(inputDate + 'T00:00:00.000Z');
+    return date.toISOString();
+  };
+
+  // Formatar valor monetário
+  const formatCurrencyInput = (value: string): string => {
+    // Remove tudo que não é número
+    const cleanValue = value.replace(/\D/g, '');
+
+    if (!cleanValue) return '';
+
+    // Converte para centavos
+    const cents = parseInt(cleanValue);
+
+    // Converte de volta para reais com vírgula
+    const reais = cents / 100;
+
+    return reais.toFixed(2).replace('.', ',');
+  };
+
+  // Converter valor formatado para número
+  const parseFormattedValue = (formattedValue: string): number => {
+    if (!formattedValue) return 0;
+    return parseFloat(formattedValue.replace(',', '.')) || 0;
+  };
+
   const [formData, setFormData] = useState({
+    id: account?.id || null,
     description: account?.description || '',
-    value: account?.value || 0,
-    dueDate: account?.dueDate || '',
+    value: account?.value ? formatCurrencyInput((account.value * 100).toString()) : '',
+    dueDate: account?.dueDate ? formatDateForInput(account.dueDate) : '',
     status: account?.status || 'pending' as const,
     category: account?.category || '',
     type: account?.type || 'expense' as const,
-    creditCard: account?.creditCard || '',
-    inCreditCardStatement: account?.inCreditCardStatement || false,
+    creditCard: account?.creditCard || null,
   });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target;
+
+    if (type === 'checkbox') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: (e.target as HTMLInputElement).checked,
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+  };
+
+  const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formattedValue = formatCurrencyInput(e.target.value);
+    setFormData(prev => ({
+      ...prev,
+      value: formattedValue,
+    }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,15 +87,15 @@ export const AccountForm: React.FC<AccountFormProps> = ({ account, onSave, onCan
       alert('Por favor, preencha todos os campos obrigatórios');
       return;
     }
-    onSave(formData);
-  };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: name === 'value' ? parseFloat(value) || 0 : value,
-    }));
+    // Converter dados para o formato esperado
+    const accountData = {
+      ...formData,
+      value: parseFormattedValue(formData.value),
+      dueDate: formatDateToUTC(formData.dueDate),
+    };
+
+    onSave(accountData);
   };
 
   return (
@@ -62,7 +123,7 @@ export const AccountForm: React.FC<AccountFormProps> = ({ account, onSave, onCan
                 id="description"
                 name="description"
                 value={formData.description}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
                 placeholder="Descrição da conta"
@@ -79,7 +140,7 @@ export const AccountForm: React.FC<AccountFormProps> = ({ account, onSave, onCan
                   id="type"
                   name="type"
                   value={formData.type}
-                  onChange={handleChange}
+                  onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
                   required
                 >
@@ -90,20 +151,21 @@ export const AccountForm: React.FC<AccountFormProps> = ({ account, onSave, onCan
 
               <div>
                 <label htmlFor="value" className="block text-sm font-medium text-gray-700 mb-2">
-                  Valor *
+                  Valor (R$) *
                 </label>
-                <input
-                  type="number"
-                  id="value"
-                  name="value"
-                  value={formData.value}
-                  onChange={handleChange}
-                  step="0.01"
-                  min="0"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
-                  placeholder="0,00"
-                  required
-                />
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">R$</span>
+                  <input
+                    type="text"
+                    id="value"
+                    name="value"
+                    value={formData.value}
+                    onChange={handleValueChange}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+                    placeholder="0,00"
+                    required
+                  />
+                </div>
               </div>
             </div>
 
@@ -117,7 +179,7 @@ export const AccountForm: React.FC<AccountFormProps> = ({ account, onSave, onCan
                   id="dueDate"
                   name="dueDate"
                   value={formData.dueDate}
-                  onChange={handleChange}
+                  onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
                   required
                 />
@@ -131,7 +193,7 @@ export const AccountForm: React.FC<AccountFormProps> = ({ account, onSave, onCan
                   id="status"
                   name="status"
                   value={formData.status}
-                  onChange={handleChange}
+                  onChange={handleInputChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
                 >
                   <option value="pending">Pendente</option>
@@ -150,7 +212,7 @@ export const AccountForm: React.FC<AccountFormProps> = ({ account, onSave, onCan
                 id="category"
                 name="category"
                 value={formData.category}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
                 placeholder="Ex: Alimentação, Moradia, Salário"
                 required
@@ -164,8 +226,8 @@ export const AccountForm: React.FC<AccountFormProps> = ({ account, onSave, onCan
               <select
                 id="creditCard"
                 name="creditCard"
-                value={formData.creditCard}
-                onChange={handleChange}
+                value={formData.creditCard || ''}
+                onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
               >
                 <option value="">Nenhum cartão</option>

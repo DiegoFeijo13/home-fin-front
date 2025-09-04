@@ -14,7 +14,6 @@ const mockAccounts: Account[] = [
     type: 'expense',
     creditCard: 'Nubank Roxinho',
     createdAt: '2024-01-15',
-    inCreditCardStatement: true,
   },
   {
     id: '2',
@@ -26,7 +25,6 @@ const mockAccounts: Account[] = [
     type: 'income',
     creditCard: '',
     createdAt: '2024-01-01',
-    inCreditCardStatement: false,
   },
   {
     id: '3',
@@ -38,7 +36,6 @@ const mockAccounts: Account[] = [
     type: 'expense',
     creditCard: 'Itaú Click',
     createdAt: '2024-01-10',
-    inCreditCardStatement: true,
   },
   {
     id: '4',
@@ -50,7 +47,6 @@ const mockAccounts: Account[] = [
     type: 'expense',
     creditCard: 'C6 Bank',
     createdAt: '2024-01-20',
-    inCreditCardStatement: true,
   },
 ];
 
@@ -118,7 +114,7 @@ export const useAccounts = () => {
     }
 
     try {
-      const updatedAccount = await AccountService.updateAccount(id, accountData);
+      const updatedAccount = await AccountService.updateAccount(id, accountData);      
       setAccounts(prev => prev.map(account => 
         account.id === id ? updatedAccount : account
       ));

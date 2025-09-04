@@ -17,7 +17,9 @@ export const AccountList: React.FC<AccountListProps> = ({ accounts, onEdit, onDe
   };
 
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('pt-BR');
+    return new Date(date).toLocaleDateString('pt-BR',{
+      timeZone: 'UTC'
+    });
   };
 
   const getStatusColor = (status: Account['status']) => {
