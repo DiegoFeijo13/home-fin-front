@@ -8,7 +8,6 @@ RUN npm install
 
 # copia o restante e gera build
 COPY . .
-# copia o .env.production para dentro
 COPY .env.production .env.production
 RUN npm run build
 
