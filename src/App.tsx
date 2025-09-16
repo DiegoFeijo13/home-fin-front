@@ -23,10 +23,10 @@ function App() {
   const filteredAccounts = useMemo(() => {
     return accounts.filter(account => {
       const matchesSearch = account.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           account.category.toLowerCase().includes(searchTerm.toLowerCase());
+        account.category.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = !statusFilter || account.status === statusFilter;
       const matchesType = !typeFilter || account.type === typeFilter;
-      
+
       return matchesSearch && matchesStatus && matchesType;
     });
   }, [accounts, searchTerm, statusFilter, typeFilter]);
@@ -46,7 +46,25 @@ function App() {
       if (editingAccount) {
         await updateAccount(editingAccount.id, accountData);
       } else {
-        await addAccount(accountData);
+        // Verificar se é conta recorrente
+        const { isRecurring, recurringMonths, ...baseAccountData } = accountData as any;
+
+        if (isRecurring && recurringMonths > 1) {
+          // Criar múltiplas contas para os próximos meses
+          for (let i = 0; i < recurringMonths; i++) {
+            const dueDate = new Date(baseAccountData.dueDate);
+            dueDate.setUTCMonth(dueDate.getUTCMonth() + i);
+
+            const monthlyAccount = {
+              ...baseAccountData,
+              dueDate: dueDate.toISOString(),
+            };
+
+            await addAccount(monthlyAccount);
+          }
+        } else {
+          await addAccount(baseAccountData);
+        }
       }
       setShowAccountForm(false);
       setEditingAccount(null);
@@ -95,38 +113,35 @@ function App() {
               </div>
               <h1 className="text-xl font-bold text-gray-900">Controle Financeiro</h1>
             </div>
-            
+
             {/* Navigation */}
             <nav className="flex space-x-1">
               <button
                 onClick={() => setActiveTab('dashboard')}
-                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
-                  activeTab === 'dashboard'
+                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${activeTab === 'dashboard'
                     ? 'bg-blue-100 text-blue-700'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                }`}
+                  }`}
               >
                 <Home className="w-4 h-4" />
                 Dashboard
               </button>
               <button
                 onClick={() => setActiveTab('accounts')}
-                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
-                  activeTab === 'accounts'
+                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${activeTab === 'accounts'
                     ? 'bg-blue-100 text-blue-700'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                }`}
+                  }`}
               >
                 <FileText className="w-4 h-4" />
                 Contas
               </button>
-                            <button
+              <button
                 onClick={() => setActiveTab('reports')}
-                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
-                  activeTab === 'reports'
+                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${activeTab === 'reports'
                     ? 'bg-blue-100 text-blue-700'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                }`}
+                  }`}
               >
                 <Calendar className="w-4 h-4" />
                 Relatórios
@@ -154,7 +169,7 @@ function App() {
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Gestão de Contas</h2>
               <p className="text-gray-600">Gerencie suas receitas e despesas</p>
             </div>
-            
+
             <div className="space-y-6">
               <FilterBar
                 searchTerm={searchTerm}

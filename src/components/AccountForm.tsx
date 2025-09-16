@@ -9,7 +9,7 @@ interface AccountFormProps {
 }
 
 export const AccountForm: React.FC<AccountFormProps> = ({ account, onSave, onCancel }) => {
-  
+
   // Converter data UTC para formato de input date (YYYY-MM-DD)
   const formatDateForInput = (utcDate: string): string => {
     if (!utcDate) return '';
@@ -55,6 +55,8 @@ export const AccountForm: React.FC<AccountFormProps> = ({ account, onSave, onCan
     category: account?.category || '',
     type: account?.type || 'expense' as const,
     creditCard: account?.creditCard || null,
+    isRecurring: false,
+    recurringMonths: 1,
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -85,6 +87,11 @@ export const AccountForm: React.FC<AccountFormProps> = ({ account, onSave, onCan
     e.preventDefault();
     if (!formData.description || !formData.value || !formData.dueDate || !formData.category) {
       alert('Por favor, preencha todos os campos obrigatórios');
+      return;
+    }
+
+    if (formData.isRecurring && formData.recurringMonths < 1) {
+      alert('O número de meses deve ser pelo menos 1');
       return;
     }
 
@@ -240,6 +247,47 @@ export const AccountForm: React.FC<AccountFormProps> = ({ account, onSave, onCan
                 <option value="XP Visa Infinite">XP Visa Infinite</option>
               </select>
             </div>
+
+            {!account && (
+              <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id="isRecurring"
+                    name="isRecurring"
+                    checked={formData.isRecurring}
+                    onChange={handleInputChange}
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                  />
+                  <label htmlFor="isRecurring" className="text-sm font-medium text-gray-700">
+                    Criar conta recorrente para os próximos meses
+                  </label>
+                </div>
+                
+                {formData.isRecurring && (
+                  <div>
+                    <label htmlFor="recurringMonths" className="block text-sm font-medium text-gray-700 mb-2">
+                      Número de meses (incluindo o atual)
+                    </label>
+                    <input
+                      type="number"
+                      id="recurringMonths"
+                      name="recurringMonths"
+                      value={formData.recurringMonths}
+                      onChange={handleInputChange}
+                      min="1"
+                      max="12"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+                      placeholder="Ex: 3"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Será criada {formData.recurringMonths} conta{formData.recurringMonths > 1 ? 's' : ''} 
+                      {formData.recurringMonths > 1 ? ` (atual + ${formData.recurringMonths - 1} próximos meses)` : ' (apenas o mês atual)'}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="flex gap-3 pt-4">
               <button

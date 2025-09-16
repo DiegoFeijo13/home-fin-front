@@ -8,6 +8,9 @@ export interface Account {
   type: 'income' | 'expense';
   creditCard: string | null;
   createdAt: string;
+  // Campos opcionais para criação de contas recorrentes
+  isRecurring?: boolean;
+  recurringMonths?: number;
 }
 
 export interface DashboardStats {
