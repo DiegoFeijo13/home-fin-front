@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Users, Calculator, Check, X, DollarSign, Share2, Download } from 'lucide-react';
+import { Users, Calculator, Check, X, DollarSign, Share2, Download, Filter, Folder } from 'lucide-react';
 import { Account } from '../types';
 import html2canvas from 'html2canvas';
 
@@ -14,12 +14,59 @@ interface SelectedAccount {
 
 export const ExpenseSharingReport: React.FC<ExpenseSharingReportProps> = ({ accounts }) => {
   const [selectedAccounts, setSelectedAccounts] = useState<Map<string, SelectedAccount>>(new Map());
+  const [categoryFilter, setCategoryFilter] = useState('');
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+
+  // Extrair todas as categorias únicas das contas
+  const allCategories = useMemo(() => {
+    const categorySet = new Set<string>();
+    accounts.forEach(account => {
+      if (account.category) {
+        const cleanCategory = account.category.trim();
+        if (cleanCategory) categorySet.add(cleanCategory);
+      }
+    });
+    return Array.from(categorySet).sort();
+  }, [accounts]);
+
+  // Contar frequência das categorias
+  const categoryFrequency = useMemo(() => {
+    const frequency: { [tag: string]: number } = {};
+    accounts.forEach(account => {
+      if (account.category) {
+        const cleanCategory = account.category.trim();
+        if (cleanCategory) {
+          frequency[cleanCategory] = (frequency[cleanCategory] || 0) + 1;
+        }
+      }
+    });
+    return frequency;
+  }, [accounts]);
+
+  // Top 10 categorias mais usadas
+  const topCategories = useMemo(() => {
+    return Object.entries(categoryFrequency)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 10)
+      .map(([category]) => category);
+  }, [categoryFrequency]);
 
   // Filtrar apenas despesas
   const expenseAccounts = useMemo(() => {
-    return accounts.filter(account => account.type === 'expense');
-  }, [accounts]);
+    let filtered = accounts.filter(account => account.type === 'expense');
+    
+    // Aplicar filtro por categoria se especificado
+    if (categoryFilter.trim()) {
+      filtered = filtered.filter(account => {
+        if (!account.category) return false;
+        const accountCategory = account.category.toLowerCase().trim();
+        const searchCategory = categoryFilter.toLowerCase().trim();
+        return accountCategory.includes(searchCategory);
+      });
+    }
+    
+    return filtered;
+  }, [accounts, categoryFilter]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -168,6 +215,88 @@ export const ExpenseSharingReport: React.FC<ExpenseSharingReportProps> = ({ acco
         </div>
       </div>
 
+      {/* Filtro por Categorias */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+        <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+          <div className="flex items-center gap-2">
+            <Filter className="w-5 h-5 text-blue-600" />
+            <h3 className="text-lg font-semibold text-gray-900">Filtrar por Categorias</h3>
+          </div>
+        </div>
+        
+        <div className="p-6">
+          <div className="space-y-4">
+            {/* Campo de busca */}
+            <div className="relative">
+              <Folder className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Digite uma categoria para filtrar (ex: Alimentação, Moradia, Transporte)..."
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200"
+              />
+              {categoryFilter && (
+                <button
+                  onClick={() => setCategoryFilter('')}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
+            {/* Categorias sugeridas */}
+            {topCategories.length > 0 && (
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-2">Categorias mais usadas:</p>
+                <div className="flex flex-wrap gap-2">
+                  {topCategories.map(category => (
+                    <button
+                      key={category}
+                      onClick={() => setCategoryFilter(category)}
+                      className={`px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 ${
+                        categoryFilter === category
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      {category} ({categoryFrequency[category]})
+                    </button>
+                  ))}
+                  {allCategories.length > 10 && (
+                    <span className="px-3 py-1 text-sm text-gray-500">
+                      +{allCategories.length - 10} mais
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Status do filtro */}
+            {categoryFilter && (
+              <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <Filter className="w-4 h-4 text-blue-600" />
+                  <span className="text-sm text-blue-800">
+                    Filtrando por: <strong>"{categoryFilter}"</strong>
+                  </span>
+                  <span className="text-sm text-blue-600">
+                    ({expenseAccounts.length} conta{expenseAccounts.length !== 1 ? 's' : ''} encontrada{expenseAccounts.length !== 1 ? 's' : ''})
+                  </span>
+                </div>
+                <button
+                  onClick={() => setCategoryFilter('')}
+                  className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                >
+                  Limpar filtro
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Seleção de Contas */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
         <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
@@ -291,9 +420,6 @@ export const ExpenseSharingReport: React.FC<ExpenseSharingReportProps> = ({ acco
                     Data
                   </th>
                   <th className="px-3 py-3 text-center text-xs font-semibold text-gray-900 border-b border-gray-200">
-                    Pessoas
-                  </th>
-                  <th className="px-3 py-3 text-center text-xs font-semibold text-gray-900 border-b border-gray-200">
                     Valor Total
                   </th>
                   <th className="px-3 py-3 text-center text-xs font-semibold text-gray-900 border-b border-gray-200">
@@ -308,16 +434,10 @@ export const ExpenseSharingReport: React.FC<ExpenseSharingReportProps> = ({ acco
                   return (
                     <tr key={item.account.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}>
                       <td className="px-4 py-3 text-xs font-medium text-gray-900">
-                        <div>
-                          <div className="font-medium">{item.account.description}</div>
-                          <div className="text-xs text-gray-500 mt-1">{item.account.category}</div>
-                        </div>
+                        {item.account.description}
                       </td>
                       <td className="px-3 py-3 text-center text-xs text-gray-600">
                         {formatDate(item.account.dueDate)}
-                      </td>
-                      <td className="px-3 py-3 text-center text-xs font-medium text-blue-600">
-                        {item.peopleCount}
                       </td>
                       <td className="px-3 py-3 text-center text-xs font-medium text-red-600">
                         {formatCurrency(item.account.value)}
@@ -331,7 +451,7 @@ export const ExpenseSharingReport: React.FC<ExpenseSharingReportProps> = ({ acco
               </tbody>
               <tfoot className="bg-gray-100">
                 <tr>
-                  <td colSpan={3} className="px-4 py-3 text-xs font-bold text-gray-900">
+                  <td colSpan={2} className="px-4 py-3 text-xs font-bold text-gray-900">
                     Total ({totals.accountsCount} contas)
                   </td>
                   <td className="px-3 py-3 text-center text-xs font-bold text-red-600">
