@@ -15,7 +15,7 @@ interface MonthlyData {
 export const MonthlyReport: React.FC<MonthlyReportProps> = ({ accounts }) => {
   const { incomeData, expenseData, months, incomeTotals, expenseTotals, balanceTotals } = useMemo(() => {
     const now = new Date();
-    const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 2, 1);
     
     // Filtrar contas dos últimos 3 meses
     const filteredAccounts = accounts.filter(account => {

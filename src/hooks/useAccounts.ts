@@ -275,7 +275,7 @@ export const useAccounts = () => {
     loadAccounts();
   }, [useApi]);
 
-  const loadAccounts = async () => {
+  const loadAccounts = async () => {    
     setLoading(true);
     setError(null);
     

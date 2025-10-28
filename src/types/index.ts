@@ -21,3 +21,14 @@ export interface DashboardStats {
   overdueAccounts: number;
   paidAccounts: number;
 }
+
+export interface User {  
+  name: string;
+  username: string;  
+}
+
+export interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+}

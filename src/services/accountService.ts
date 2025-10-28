@@ -1,5 +1,6 @@
 import { Account } from '../types';
-import { API_CONFIG, buildApiUrl, getDefaultHeaders } from '../config/api';
+import { API_CONFIG, buildApiUrl } from '../config/api';
+import { AuthService } from './authService';
 
 export class AccountService {
   private static async handleResponse<T>(response: Response): Promise<T> {
@@ -10,12 +11,16 @@ export class AccountService {
     return response.json();
   }
 
+  private static getAuthHeaders(): HeadersInit {
+    return AuthService.getAuthHeaders();
+  }
+
   static async getAccounts(): Promise<Account[]> {
     try {
       const response = await fetch(buildApiUrl(API_CONFIG.endpoints.accounts), {
         method: 'GET',
-        headers: getDefaultHeaders(),
-      });
+        headers: this.getAuthHeaders(),
+      });      
       return this.handleResponse<Account[]>(response);
     } catch (error) {
       console.error('Erro ao buscar contas:', error);
@@ -27,7 +32,7 @@ export class AccountService {
     try {
       const response = await fetch(buildApiUrl(API_CONFIG.endpoints.accounts), {
         method: 'POST',
-        headers: getDefaultHeaders(),
+        headers: this.getAuthHeaders(),
         body: JSON.stringify(accountData),
       });
       return this.handleResponse<Account>(response);
@@ -41,7 +46,7 @@ export class AccountService {
     try {
       const response = await fetch(buildApiUrl(`${API_CONFIG.endpoints.accounts}/${id}`), {
         method: 'PUT',
-        headers: getDefaultHeaders(),
+        headers: this.getAuthHeaders(),
         body: JSON.stringify(accountData),
       });
       return this.handleResponse<Account>(response);
@@ -55,7 +60,7 @@ export class AccountService {
     try {
       const response = await fetch(buildApiUrl(`${API_CONFIG.endpoints.accounts}/${id}`), {
         method: 'DELETE',
-        headers: getDefaultHeaders(),
+        headers: this.getAuthHeaders(),
       });
       
       if (!response.ok) {
@@ -67,4 +72,10 @@ export class AccountService {
       throw error;
     }
   }
+
+  // Aliases para manter compatibilidade
+  static getAll = this.getAccounts;
+  static create = this.createAccount;
+  static update = this.updateAccount;
+  static delete = this.deleteAccount;
 }
