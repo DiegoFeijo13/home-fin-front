@@ -1,6 +1,6 @@
 import React from 'react';
 import { Edit2, Trash2, Calendar, DollarSign, CreditCard } from 'lucide-react';
-import { Account } from '../types';
+import { Account } from '../types/account';
 
 interface AccountListProps {
   accounts: Account[];
