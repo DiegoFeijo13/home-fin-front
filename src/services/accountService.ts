@@ -1,4 +1,4 @@
-import { Account } from '../types/authState';
+import { Account } from '../types/account';
 import { API_CONFIG, buildApiUrl } from '../config/api';
 import { AuthService } from './authService';
 
