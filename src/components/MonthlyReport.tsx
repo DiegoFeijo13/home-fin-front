@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Calendar, TrendingDown, TrendingUp, DollarSign } from 'lucide-react';
-import { Account } from '../types';
+import { Account } from '../types/account';
 
 interface MonthlyReportProps {
   accounts: Account[];

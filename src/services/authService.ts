@@ -1,4 +1,4 @@
-import { User } from '../types';
+import { User } from '../types/user';
 import { buildApiUrl, getDefaultHeaders } from '../config/api';
 
 

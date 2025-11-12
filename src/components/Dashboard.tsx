@@ -1,6 +1,7 @@
 import React from 'react';
 import { TrendingUp, TrendingDown, DollarSign, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
-import { Account, DashboardStats } from '../types';
+import { Account } from '../types/account';
+import { DashboardStats } from '../types/dashboardStats';
 
 interface DashboardProps {
   accounts: Account[];

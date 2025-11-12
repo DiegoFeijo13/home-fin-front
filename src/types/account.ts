@@ -12,23 +12,3 @@ export interface Account {
   isRecurring?: boolean;
   recurringMonths?: number;
 }
-
-export interface DashboardStats {
-  totalIncome: number;
-  totalExpenses: number;
-  balance: number;
-  pendingAccounts: number;
-  overdueAccounts: number;
-  paidAccounts: number;
-}
-
-export interface User {  
-  name: string;
-  username: string;  
-}
-
-export interface AuthState {
-  user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-}

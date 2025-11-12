@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Users, Calculator, Check, X, DollarSign, Share2, Download, Filter, Folder } from 'lucide-react';
-import { Account } from '../types';
+import { Account } from '../types/account';
 import html2canvas from 'html2canvas';
 
 interface ExpenseSharingReportProps {

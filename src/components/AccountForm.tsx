@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Save, X } from 'lucide-react';
-import { Account } from '../types';
+import { Account } from '../types/account';
 
 interface AccountFormProps {
   account?: Account;

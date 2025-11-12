@@ -1,5 +1,5 @@
-import { useState, useEffect, createContext, useContext } from 'react';
-import { AuthState } from '../types';
+import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
+import { AuthState } from '../types/authState';
 import { AuthService, LoginCredentials, RegisterCredentials } from '../services/authService';
 
 const AuthContext = createContext<{
@@ -17,7 +17,11 @@ export const useAuth = () => {
   return context;
 };
 
-export const useAuthProvider = () => {
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
     isAuthenticated: false,
@@ -46,7 +50,7 @@ export const useAuthProvider = () => {
           isLoading: false,
         });
       } catch (error) {
-        console.error('Token inválido:', error);
+        console.error('Erro ao validar usuário:', error);
         AuthService.removeToken();
         setAuthState({
           user: null,
@@ -111,11 +115,9 @@ export const useAuthProvider = () => {
     }
   };
 
-  return {
-    authState,
-    login,
-    register,
-    logout,
-    AuthContext,
-  };
+  return (
+    <AuthContext.Provider value={{ authState, login, register, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };

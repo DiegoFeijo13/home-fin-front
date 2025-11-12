@@ -1,6 +1,6 @@
 // Configuração da API
 export const API_CONFIG = {
-  baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api',
+  baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://192.168.15.171:8080',
   endpoints: {
     accounts: '/accounts',
   },
